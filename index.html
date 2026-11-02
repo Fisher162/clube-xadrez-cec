@@ -87,7 +87,7 @@ async function signIn(mode){
   try{
     if(mode==='signup'){
       const full_name=$('authName').value.trim();
-      const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name}}});
+      const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name},emailRedirectTo:'https://fisher162.github.io/clube-xadrez-cec/'}});
       if(error)throw error;
       if(data.session){await refreshProfile();toast('Conta criada.');}
       else toast('Cadastro iniciado! Verifique seu e-mail para confirmar a conta.');
