@@ -21,36 +21,177 @@ table{width:100%;border-collapse:collapse;text-align:left}th{font-size:11px;colo
 <body>
 <div class="shell">
 <header class="top"><div class="brand"><div class="logo">♞</div><div><div class="eyebrow">CEC Diocesano Janaúba</div><h1>Clube de Xadrez</h1><p>Estratégia, aprendizado e comunidade.</p></div></div><div class="status">♟ Sistema do clube · versão inicial</div></header>
+<section class="panel" id="authPanel" style="margin-bottom:18px"><div class="panelhead"><div><h3>Acesso da equipe</h3><p class="sub" id="authStatus">Entre com sua conta para administrar jogadores e torneios. O ranking é público.</p></div><span class="pill" id="roleLabel">Visitante</span></div><form id="authForm" class="form"><div class="form row"><label>Nome (somente no cadastro)<input id="authName" placeholder="Seu nome"></label><label>E-mail<input id="authEmail" type="email" autocomplete="username" required placeholder="seu@email.com"></label><label>Senha<input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="Mínimo de 8 caracteres"></label></div><div class="row"><button type="submit" id="loginButton">Entrar</button><button type="button" class="secondary" id="signupButton">Criar conta</button><button type="button" class="secondary" id="logoutButton" style="display:none">Sair</button></div></form><p class="sub" id="authHelp">A primeira conta será criada como visitante. Depois, o administrador principal será autorizado com uma configuração segura no banco.</p></section>
 <section class="hero"><div class="welcome"><div class="eyebrow">Bem-vindo ao clube</div><h2>Cada partida é uma nova oportunidade.</h2><p>Acompanhe os jogadores, registre partidas e veja o ranking geral evoluir a cada resultado.</p><button onclick="showTab('ranking')">Ver ranking <span aria-hidden="true">→</span></button></div><div class="stats"><div class="stat"><small>Jogadores cadastrados</small><strong id="statPlayers">0</strong><span>♟ Comunidade</span></div><div class="stat"><small>Partidas registradas</small><strong id="statGames">0</strong><span>♜ Histórico</span></div><div class="stat"><small>Torneios criados</small><strong id="statTournaments">0</strong><span>♛ Competições</span></div><div class="stat"><small>Maior rating</small><strong id="statTop">—</strong><span>♔ Líder atual</span></div></div></section>
 <nav class="tabs"><button class="tab active" data-tab="ranking" onclick="showTab('ranking')">🏆 Ranking geral</button><button class="tab" data-tab="players" onclick="showTab('players')">♟ Jogadores</button><button class="tab" data-tab="games" onclick="showTab('games')">♜ Partidas</button><button class="tab" data-tab="tournaments" onclick="showTab('tournaments')">♛ Torneios</button></nav>
 <section id="ranking" class="section active"><div class="grid"><div class="panel"><div class="panelhead"><div><h3>Ranking geral</h3><p class="sub">Classificação ordenada pelo rating Elo.</p></div><span class="pill">ELO · K=32</span></div><div id="rankingTable"></div></div><div class="panel"><h3>Registrar resultado</h3><p class="sub">O rating dos dois jogadores será atualizado automaticamente.</p><form id="gameForm" class="form"><label>Jogador 1<select id="gameP1" required></select></label><label>Jogador 2<select id="gameP2" required></select></label><label>Resultado<select id="gameResult"><option value="1">Jogador 1 venceu</option><option value="0.5">Empate</option><option value="0">Jogador 2 venceu</option></select></label><label>Torneio (opcional)<select id="gameTournament"><option value="">Partida avulsa</option></select></label><button type="submit">Registrar partida</button></form><div class="notice">O cálculo utiliza a fórmula Elo padrão, com fator K = 32 e rating inicial de 1000 pontos.</div></div></div></section>
 <section id="players" class="section"><div class="grid"><div class="panel"><h3>Jogadores cadastrados</h3><p class="sub">Todos os participantes do ranking único do clube.</p><div id="playersList"></div></div><div class="panel"><h3>Novo jogador</h3><p class="sub">Cadastre um participante para começar a registrar partidas.</p><form id="playerForm" class="form"><label>Nome completo<input id="playerName" maxlength="70" placeholder="Nome do jogador" required></label><label>Turma (opcional)<input id="playerClass" maxlength="30" placeholder="Ex.: 8º ano A"></label><button type="submit">Adicionar jogador</button></form></div></div></section>
 <section id="games" class="section"><div class="panel"><h3>Histórico de partidas</h3><p class="sub">Resultados registrados e variação de rating.</p><div id="gamesList"></div></div></section>
-<section id="tournaments" class="section"><div class="grid"><div class="panel"><h3>Torneios do clube</h3><p class="sub">Organize competições e associe partidas aos eventos.</p><div id="tournamentsList"></div></div><div class="panel"><h3>Criar torneio</h3><p class="sub">Cadastre o próximo evento do clube.</p><form id="tournamentForm" class="form"><label>Nome do torneio<input id="tournamentName" maxlength="70" placeholder="Ex.: Torneio de Inauguração" required></label><label>Data<input id="tournamentDate" type="date"></label><label>Formato<select id="tournamentFormat"><option>Suíço</option><option>Eliminatória</option><option>Todos contra todos</option><option>Rápido</option><option>Blitz</option></select></label><button type="submit">Criar torneio</button></form></div></div></section>
-<div class="notice">Importante: esta primeira versão salva os dados neste navegador (armazenamento local). Ainda não há contas, sincronização entre dispositivos nem controle seguro de permissões para administrador e monitores. Essa etapa exige conectar um banco de dados e autenticação antes de usar o sistema oficialmente.</div>
+<section id="tournaments" class="section"><div class="grid"><div class="panel"><h3>Torneios do clube</h3><p class="sub">Organize competições e associe partidas aos eventos.</p><div id="tournamentsList"></div></div><div class="panel"><h3>Criar torneio</h3><p class="sub">Cadastre o próximo evento do clube.</p><form id="tournamentForm" class="form"><label>Nome do torneio<input id="tournamentName" maxlength="70" placeholder="Ex.: Torneio de Inauguração" required></label><label>Data<input id="tournamentDate" type="date"></label><label>Formato<select id="tournamentFormat"><option value="swiss">Suíço</option><option value="round_robin">Todos contra todos</option><option value="knockout">Eliminatória</option></select></label><button type="submit">Criar torneio</button></form></div></div><div class="panel" style="margin-top:18px"><div class="panelhead"><div><h3>Pareamento automático</h3><p class="sub">Inscreva os jogadores e gere as rodadas do torneio.</p></div><span class="pill">Suíço / Todos contra todos</span></div><div class="form"><label>Selecionar torneio<select id="pairTournament"><option value="">Escolha um torneio</option></select></label><div class="row"><button type="button" id="enrollButton">Inscrever jogadores cadastrados</button><button type="button" id="generateRoundButton">Gerar próxima rodada</button></div></div><div id="pairingsList" style="margin-top:16px"><div class="empty">Selecione um torneio para visualizar os pareamentos.</div></div></div></section>
+<div class="notice" id="systemNotice">Os dados do clube são armazenados no banco online. O ranking pode ser consultado publicamente; cadastros, resultados e organização dos torneios exigem acesso autorizado.</div>
 <footer class="footer">Clube de Xadrez do CEC Diocesano Janaúba · Feito para aprender, competir e evoluir.</footer>
 </div><div class="toast" id="toast"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const KEY='cec-chess-v1';
-let state=load();
-function load(){try{return JSON.parse(localStorage.getItem(KEY))||{players:[],games:[],tournaments:[]}}catch{return{players:[],games:[],tournaments:[]}}}
-function save(){localStorage.setItem(KEY,JSON.stringify(state));render()}
+const SUPABASE_URL='https://ivjazzuncfpinjvhohuv.supabase.co';
+const SUPABASE_KEY='sb_publishable_zAnjHwtRAVW8i4WKUh3zPA_KSLgfbN3';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+let state={players:[],games:[],tournaments:[],tournamentPlayers:[],rounds:[],pairings:[]};
+let currentUser=null, currentProfile=null, loading=false;
+const $=id=>document.getElementById(id);
+const isStaff=()=>!!currentProfile&&['admin','monitor'].includes(currentProfile.role);
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
-function toast(msg){const el=document.getElementById('toast');el.textContent=msg;el.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.style.display='none',2600)}
+function toast(msg){const el=$('toast');el.textContent=msg;el.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.style.display='none',3000)}
 function showTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));}
+function playerName(id){return state.players.find(p=>p.id===id)?.name||'Aguardando adversário'}
 function sorted(){return [...state.players].sort((a,b)=>b.rating-a.rating||a.name.localeCompare(b.name))}
-function playerName(id){return state.players.find(p=>p.id===id)?.name||'Jogador removido'}
-function render(){const rank=sorted();document.getElementById('statPlayers').textContent=state.players.length;document.getElementById('statGames').textContent=state.games.length;document.getElementById('statTournaments').textContent=state.tournaments.length;document.getElementById('statTop').textContent=rank[0]?.rating??'—';
-document.getElementById('rankingTable').innerHTML=rank.length?'<table><thead><tr><th>#</th><th>Jogador</th><th>Rating</th><th class="hide-mobile">Partidas</th></tr></thead><tbody>'+rank.map((p,i)=>'<tr><td class="rank">'+(i+1)+'</td><td><div class="player"><div class="avatar">'+esc(p.name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</div><div><strong>'+esc(p.name)+'</strong><div class="muted" style="font-size:11px">'+esc(p.schoolClass||'Participante')+'</div></div></div></td><td class="rating">'+p.rating+'</td><td class="hide-mobile">'+p.played+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">Ainda não há jogadores. Cadastre o primeiro participante para iniciar o ranking.</div>';
-document.getElementById('playersList').innerHTML=state.players.length?'<div class="list">'+rank.map(p=>'<div class="item"><div><strong>'+esc(p.name)+'</strong><small>'+esc(p.schoolClass||'Sem turma')+' · '+p.played+' partidas · '+p.rating+' Elo</small></div><button class="danger" onclick="removePlayer(\''+p.id+'\')">Remover</button></div>').join('')+'</div>':'<div class="empty">Nenhum jogador cadastrado.</div>';
-const options=state.players.map(p=>'<option value="'+p.id+'">'+esc(p.name)+' ('+p.rating+')</option>').join('');document.getElementById('gameP1').innerHTML=options;document.getElementById('gameP2').innerHTML=options;document.getElementById('gameTournament').innerHTML='<option value="">Partida avulsa</option>'+state.tournaments.map(t=>'<option value="'+t.id+'">'+esc(t.name)+'</option>').join('');
-document.getElementById('gamesList').innerHTML=state.games.length?'<div class="list">'+[...state.games].reverse().map(g=>'<div class="item"><div><strong>'+esc(playerName(g.p1))+' <span class="muted">×</span> '+esc(playerName(g.p2))+'</strong><small>'+esc(g.resultText)+' · '+new Date(g.date).toLocaleString('pt-BR')+' · '+esc(g.tournamentName||'Partida avulsa')+'</small></div><span class="pill">Elo atualizado</span></div>').join('')+'</div>':'<div class="empty">As partidas registradas aparecerão aqui.</div>';
-document.getElementById('tournamentsList').innerHTML=state.tournaments.length?'<div class="list">'+[...state.tournaments].reverse().map(t=>'<div class="item"><div><strong>'+esc(t.name)+'</strong><small>'+esc(t.date?new Date(t.date+'T12:00:00').toLocaleDateString('pt-BR'):'Data a definir')+' · '+esc(t.format)+' · '+state.games.filter(g=>g.tournamentId===t.id).length+' partidas</small></div><span class="pill">Criado</span></div>').join('')+'</div>':'<div class="empty">Nenhum torneio criado ainda.</div>';
+function formatName(f){return f==='swiss'?'Suíço':f==='round_robin'?'Todos contra todos':'Eliminatória'}
+function mapPlayer(p){return {...p,schoolClass:p.school_class||'',played:Number(p.played||0),rating:Number(p.rating||1000)}}
+function mapGame(g){return {id:g.id,p1:g.player1_id,p2:g.player2_id,score:Number(g.result),old1:g.player1_rating_before,new1:g.player1_rating_after,old2:g.player2_rating_before,new2:g.player2_rating_after,date:g.played_at,resultText:Number(g.result)===1?playerName(g.player1_id)+' venceu':Number(g.result)===0?playerName(g.player2_id)+' venceu':'Empate',tournamentId:g.tournament_id||'',tournamentName:state.tournaments.find(t=>t.id===g.tournament_id)?.name||'Partida avulsa'};}
+async function loadData(){
+  const names=['players','tournaments','tournament_players','rounds','pairings','games'];
+  const results=await Promise.all(names.map(n=>db.from(n).select('*')));
+  for(let i=0;i<results.length;i++){if(results[i].error){if(names[i]==='pairings'&&results[i].error.code==='42P01'){state.pairings=[];continue;}throw results[i].error;}}
+  state.players=(results[0].data||[]).map(mapPlayer);
+  state.tournaments=results[1].data||[];
+  state.tournamentPlayers=results[2].data||[];
+  state.rounds=results[3].data||[];
+  state.pairings=results[4].data||[];
+  state.games=results[5].data||[];
+  render();
 }
-function removePlayer(id){if(!confirm('Remover este jogador? O histórico das partidas será mantido.'))return;state.players=state.players.filter(p=>p.id!==id);save();toast('Jogador removido.')}
-document.getElementById('playerForm').addEventListener('submit',e=>{e.preventDefault();const name=document.getElementById('playerName').value.trim();if(!name)return;if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase())){toast('Esse jogador já está cadastrado.');return}state.players.push({id:crypto.randomUUID(),name,schoolClass:document.getElementById('playerClass').value.trim(),rating:1000,played:0});e.target.reset();save();toast('Jogador cadastrado com 1000 pontos Elo!')});
-document.getElementById('tournamentForm').addEventListener('submit',e=>{e.preventDefault();state.tournaments.push({id:crypto.randomUUID(),name:document.getElementById('tournamentName').value.trim(),date:document.getElementById('tournamentDate').value,format:document.getElementById('tournamentFormat').value});e.target.reset();save();toast('Torneio criado!')});
-document.getElementById('gameForm').addEventListener('submit',e=>{e.preventDefault();const p1=state.players.find(p=>p.id===document.getElementById('gameP1').value),p2=state.players.find(p=>p.id===document.getElementById('gameP2').value);if(!p1||!p2){toast('Cadastre pelo menos dois jogadores.');return}if(p1.id===p2.id){toast('Escolha dois jogadores diferentes.');return}const score=Number(document.getElementById('gameResult').value),expected1=1/(1+Math.pow(10,(p2.rating-p1.rating)/400)),expected2=1-expected1,old1=p1.rating,old2=p2.rating;const new1=Math.round(old1+32*(score-expected1)),new2=Math.round(old2+32*((1-score)-expected2));p1.rating=new1;p2.rating=new2;p1.played++;p2.played++;const tournamentId=document.getElementById('gameTournament').value,t=state.tournaments.find(x=>x.id===tournamentId);state.games.push({id:crypto.randomUUID(),p1:p1.id,p2:p2.id,score,old1,old2,new1,new2,resultText:score===1?p1.name+' venceu':score===0?p2.name+' venceu':'Empate',tournamentId:t?.id||'',tournamentName:t?.name||'',date:new Date().toISOString()});save();e.target.reset();toast('Resultado registrado e ratings atualizados!')});
-render();
+async function refreshProfile(){
+  currentUser=(await db.auth.getUser()).data.user||null;
+  currentProfile=null;
+  if(currentUser){
+    const {data,error}=await db.from('profiles').select('id,full_name,role').eq('id',currentUser.id).maybeSingle();
+    if(!error)currentProfile=data;
+  }
+  renderAuth();
+}
+function renderAuth(){
+  $('authStatus').textContent=currentUser?(currentProfile?(currentProfile.full_name||currentUser.email)+' · Acesso autenticado':'Conta autenticada; perfil ainda não carregado'):'Entre com sua conta para administrar jogadores e torneios. O ranking é público.';
+  $('roleLabel').textContent=currentProfile?({admin:'Administrador',monitor:'Monitor',viewer:'Visitante'}[currentProfile.role]||'Conta'): 'Visitante';
+  $('authName').style.display=currentUser?'none':'block';
+  $('authEmail').disabled=!!currentUser;$('authPassword').disabled=!!currentUser;
+  $('loginButton').style.display=currentUser?'none':'inline-block';
+  $('signupButton').style.display=currentUser?'none':'inline-block';
+  $('logoutButton').style.display=currentUser?'inline-block':'none';
+  $('authHelp').textContent=currentUser?(isStaff()?'Você tem permissão para gerenciar o clube.':'Sua conta ainda é somente de consulta. Um administrador precisa autorizar seu acesso de monitor ou administrador.'):'Crie sua conta. O primeiro administrador será ativado por uma etapa protegida no banco de dados.';
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isStaff()?'':'none');
+}
+async function signIn(mode){
+  const email=$('authEmail').value.trim(),password=$('authPassword').value;
+  if(!email||!password){toast('Informe e-mail e senha.');return;}
+  loading=true;
+  try{
+    if(mode==='signup'){
+      const full_name=$('authName').value.trim();
+      const {data,error}=await db.auth.signUp({email,password,options:{data:{full_name}}});
+      if(error)throw error;
+      if(data.session){await refreshProfile();toast('Conta criada.');}
+      else toast('Cadastro iniciado! Verifique seu e-mail para confirmar a conta.');
+    }else{
+      const {error}=await db.auth.signInWithPassword({email,password});if(error)throw error;
+      await refreshProfile();await loadData();toast('Login realizado.');
+    }
+  }catch(e){toast('Não foi possível entrar: '+e.message);}
+  finally{loading=false;}
+}
+$('authForm').addEventListener('submit',e=>{e.preventDefault();signIn('login')});
+$('signupButton').addEventListener('click',()=>signIn('signup'));
+$('logoutButton').addEventListener('click',async()=>{await db.auth.signOut();await refreshProfile();toast('Você saiu da conta.');});
+function render(){
+  const rank=sorted();
+  $('statPlayers').textContent=state.players.length;$('statGames').textContent=state.games.length;$('statTournaments').textContent=state.tournaments.length;$('statTop').textContent=rank[0]?.rating??'—';
+  $('rankingTable').innerHTML=rank.length?'<table><thead><tr><th>#</th><th>Jogador</th><th>Rating</th><th class="hide-mobile">Partidas</th></tr></thead><tbody>'+rank.map((p,i)=>'<tr><td class="rank">'+(i+1)+'</td><td><div class="player"><div class="avatar">'+esc(p.name.split(/\s+/).slice(0,2).map(x=>x[0]).join('').toUpperCase())+'</div><div><strong>'+esc(p.name)+'</strong><div class="muted" style="font-size:11px">'+esc(p.schoolClass||'Participante')+'</div></div></div></td><td class="rating">'+p.rating+'</td><td class="hide-mobile">'+p.played+'</td></tr>').join('')+'</tbody></table>':'<div class="empty">Ainda não há jogadores cadastrados.</div>';
+  $('playersList').innerHTML=state.players.length?'<div class="list">'+rank.map(p=>'<div class="item"><div><strong>'+esc(p.name)+'</strong><small>'+esc(p.schoolClass||'Sem turma')+' · '+p.played+' partidas · '+p.rating+' Elo</small></div>'+(isStaff()?'<button class="danger" onclick="removePlayer(\''+p.id+'\')">Remover</button>':'')+'</div>').join('')+'</div>':'<div class="empty">Nenhum jogador cadastrado.</div>';
+  const opts=state.players.map(p=>'<option value="'+p.id+'">'+esc(p.name)+' ('+p.rating+')</option>').join('');
+  $('gameP1').innerHTML=opts;$('gameP2').innerHTML=opts;
+  const tOpts=state.tournaments.map(t=>'<option value="'+t.id+'">'+esc(t.name)+'</option>').join('');
+  $('gameTournament').innerHTML='<option value="">Partida avulsa</option>'+tOpts;
+  $('pairTournament').innerHTML='<option value="">Escolha um torneio</option>'+tOpts;
+  $('gamesList').innerHTML=state.games.length?'<div class="list">'+[...state.games].reverse().map(g=>'<div class="item"><div><strong>'+esc(playerName(g.player1_id))+' <span class="muted">×</span> '+esc(playerName(g.player2_id))+'</strong><small>'+esc(Number(g.result)===1?playerName(g.player1_id)+' venceu':Number(g.result)===0?playerName(g.player2_id)+' venceu':'Empate')+' · '+new Date(g.played_at).toLocaleString('pt-BR')+' · '+esc(state.tournaments.find(t=>t.id===g.tournament_id)?.name||'Partida avulsa')+'</small></div><span class="pill">Elo atualizado</span></div>').join('')+'</div>':'<div class="empty">As partidas registradas aparecerão aqui.</div>';
+  $('tournamentsList').innerHTML=state.tournaments.length?'<div class="list">'+[...state.tournaments].reverse().map(t=>'<div class="item"><div><strong>'+esc(t.name)+'</strong><small>'+esc(t.event_date?new Date(t.event_date+'T12:00:00').toLocaleDateString('pt-BR'):'Data a definir')+' · '+formatName(t.format)+' · '+state.games.filter(g=>g.tournament_id===t.id).length+' partidas</small></div><span class="pill">'+esc(t.status==='finished'?'Finalizado':t.status==='active'?'Em andamento':'Planejado')+'</span></div>').join('')+'</div>':'<div class="empty">Nenhum torneio criado ainda.</div>';
+  renderAuth();renderPairings();
+}
+function renderPairings(){
+  const tid=$('pairTournament').value;
+  $('pairingsList').innerHTML='';
+  if(!tid){$('pairingsList').innerHTML='<div class="empty">Selecione um torneio para visualizar os pareamentos.</div>';return;}
+  const rounds=state.rounds.filter(r=>r.tournament_id===tid).sort((a,b)=>a.round_number-b.round_number);
+  if(!rounds.length){$('pairingsList').innerHTML='<div class="empty">Ainda não há rodadas. Inscreva os jogadores e gere a primeira rodada.</div>';return;}
+  $('pairingsList').innerHTML=rounds.map(r=>{
+    const games=state.pairings.filter(p=>p.round_id===r.id);
+    return '<div style="margin:14px 0"><h4>Rodada '+r.round_number+'</h4><div class="list">'+games.map(p=>{
+      const bye=p.is_bye||!p.player2_id;
+      const done=p.result!==null&&p.result!==undefined;
+      const outcome=bye?'BYE · ponto concedido':done?(Number(p.result)===1?playerName(p.player1_id)+' venceu':Number(p.result)===0?playerName(p.player2_id)+' venceu':'Empate'):'Aguardando resultado';
+      return '<div class="item"><div><strong>'+esc(playerName(p.player1_id))+' <span class="muted">×</span> '+esc(bye?'Folga':playerName(p.player2_id))+'</strong><small>'+esc(outcome)+'</small></div>'+(isStaff()&&!bye&&!done?'<div class="row"><button onclick="finishPairing(\''+p.id+'\',1)">1–0</button><button class="secondary" onclick="finishPairing(\''+p.id+'\',0.5)">½–½</button><button onclick="finishPairing(\''+p.id+'\',0)">0–1</button></div>':'<span class="pill">'+(done||bye?'Concluída':'Pendente')+'</span>')+'</div>';
+    }).join('')+'</div></div>';
+  }).join('');
+}
+$('pairTournament').addEventListener('change',renderPairings);
+async function guarded(work){if(!isStaff()){toast('Somente administradores e monitores autorizados podem fazer isso.');return;}try{await work();await loadData();}catch(e){toast('Erro: '+e.message);}}
+$('playerForm').addEventListener('submit',e=>{e.preventDefault();guarded(async()=>{const name=$('playerName').value.trim();if(state.players.some(p=>p.name.toLowerCase()===name.toLowerCase()))throw Error('Esse jogador já está cadastrado.');const {error}=await db.from('players').insert({name,school_class:$('playerClass').value.trim()});if(error)throw error;e.target.reset();toast('Jogador cadastrado com 1000 pontos Elo!');});});
+$('tournamentForm').addEventListener('submit',e=>{e.preventDefault();guarded(async()=>{const {error}=await db.from('tournaments').insert({name:$('tournamentName').value.trim(),event_date:$('tournamentDate').value||null,format:$('tournamentFormat').value});if(error)throw error;e.target.reset();toast('Torneio criado!');});});
+$('gameForm').addEventListener('submit',e=>{e.preventDefault();guarded(async()=>{const p1=$('gameP1').value,p2=$('gameP2').value;if(!p1||!p2||p1===p2)throw Error('Escolha dois jogadores diferentes.');const tid=$('gameTournament').value||null,score=Number($('gameResult').value);const {error}=await db.from('games').insert({player1_id:p1,player2_id:p2,tournament_id:tid,result:score});if(error)throw error;if(tid){await addTournamentPoints(tid,p1,p2,score);}e.target.reset();toast('Resultado registrado e Elo atualizado!');});});
+async function addTournamentPoints(tid,p1,p2,score){
+  const {data,error}=await db.from('tournament_players').select('*').eq('tournament_id',tid);if(error)throw error;
+  for(const [pid,pts] of [[p1,score],[p2,1-score]]){const row=data.find(x=>x.player_id===pid);if(row){const {error:e}=await db.from('tournament_players').update({points:Number(row.points)+pts}).eq('tournament_id',tid).eq('player_id',pid);if(e)throw e;}else{const {error:e}=await db.from('tournament_players').insert({tournament_id:tid,player_id:pid,points:pts});if(e)throw e;}}
+}
+async function removePlayer(id){if(!confirm('Remover este jogador? Jogadores que já possuem partidas não podem ser removidos.'))return;await guarded(async()=>{const {error}=await db.from('players').delete().eq('id',id);if(error)throw error;toast('Jogador removido.');});}
+async function enrollPlayers(){
+  await guarded(async()=>{const tid=$('pairTournament').value;if(!tid)throw Error('Selecione um torneio.');const existing=state.tournamentPlayers.filter(x=>x.tournament_id===tid).map(x=>x.player_id);const rows=state.players.filter(p=>!existing.includes(p.id)).map(p=>({tournament_id:tid,player_id:p.id}));if(!rows.length){toast('Todos os jogadores já estão inscritos.');return;}const {error}=await db.from('tournament_players').insert(rows);if(error)throw error;toast(rows.length+' jogador(es) inscrito(s).');});
+}
+$('enrollButton').addEventListener('click',enrollPlayers);
+async function generateRound(){
+ await guarded(async()=>{
+  const tid=$('pairTournament').value;if(!tid)throw Error('Selecione um torneio.');
+  const tournament=state.tournaments.find(t=>t.id===tid);if(!tournament)throw Error('Torneio não encontrado.');
+  const enrolled=state.tournamentPlayers.filter(x=>x.tournament_id===tid);
+  if(enrolled.length<2)throw Error('Inscreva pelo menos dois jogadores.');
+  const oldRounds=state.rounds.filter(r=>r.tournament_id===tid).sort((a,b)=>b.round_number-a.round_number);
+  if(oldRounds.length&&state.pairings.some(p=>p.round_id===oldRounds[0].id&&p.result==null&&!p.is_bye))throw Error('Finalize todos os resultados da rodada atual antes de gerar outra.');
+  const roundNo=(oldRounds[0]?.round_number||0)+1;
+  let pairList=[];
+  if(tournament.format==='round_robin'){
+    let ids=enrolled.map(x=>x.player_id);
+    if(ids.length%2)ids.push(null);
+    const n=ids.length;
+    for(let k=1;k<roundNo;k++){const tail=ids.pop();ids.splice(1,0,tail);}
+    for(let i=0;i<n/2;i++){const a=ids[i],b=ids[n-1-i];if(a&&b)pairList.push({player1_id:a,player2_id:b,is_bye:false});else if(a||b)pairList.push({player1_id:a||b,player2_id:null,is_bye:true});}
+    const tail=ids.pop();ids.splice(1,0,tail);
+  }else{
+    let standings=enrolled.map(x=>({id:x.player_id,points:Number(x.points||0),rating:state.players.find(p=>p.id===x.player_id)?.rating||1000})).sort((a,b)=>b.points-a.points||b.rating-a.rating);
+    const prior=state.pairings.filter(p=>state.rounds.some(r=>r.id===p.round_id&&r.tournament_id===tid));
+    const hadBye=new Set(prior.filter(p=>p.is_bye).map(p=>p.player1_id));
+    if(standings.length%2){let byeIndex=-1;for(let i=standings.length-1;i>=0;i--)if(!hadBye.has(standings[i].id)){byeIndex=i;break;}if(byeIndex<0)byeIndex=standings.length-1;const bye=standings.splice(byeIndex,1)[0];pairList.push({player1_id:bye.id,player2_id:null,is_bye:true});}
+    const met=(a,b)=>prior.some(p=>(p.player1_id===a&&p.player2_id===b)||(p.player1_id===b&&p.player2_id===a));
+    while(standings.length){const a=standings.shift();let best=standings.findIndex(b=>!met(a.id,b.id));if(best<0)best=0;const b=standings.splice(best,1)[0];pairList.push({player1_id:a.id,player2_id:b.id,is_bye:false});}
+  }
+  const {data:round,error:re}=await db.from('rounds').insert({tournament_id:tid,round_number:roundNo,status:'active'}).select().single();if(re)throw re;
+  const rows=pairList.map(p=>({...p,tournament_id:tid,round_id:round.id}));
+  const {error:pe}=await db.from('pairings').insert(rows);if(pe)throw pe;
+  for(const p of pairList.filter(x=>x.is_bye)){const row=enrolled.find(x=>x.player_id===p.player1_id);const {error:e}=await db.from('tournament_players').update({points:Number(row?.points||0)+1}).eq('tournament_id',tid).eq('player_id',p.player1_id);if(e)throw e;}
+  const {error:te}=await db.from('tournaments').update({status:'active'}).eq('id',tid);if(te)throw te;
+  toast('Rodada '+roundNo+' gerada com sucesso!');
+ });
+}
+$('generateRoundButton').addEventListener('click',generateRound);
+async function finishPairing(id,score){
+ await guarded(async()=>{
+  const pairing=state.pairings.find(p=>p.id===id);if(!pairing||pairing.result!==null)throw Error('Pareamento já finalizado ou não encontrado.');
+  const {data:game,error}=await db.from('games').insert({player1_id:pairing.player1_id,player2_id:pairing.player2_id,tournament_id:pairing.tournament_id,result:score}).select().single();if(error)throw error;
+  await addTournamentPoints(pairing.tournament_id,pairing.player1_id,pairing.player2_id,score);
+  const {error:pe}=await db.from('pairings').update({result:score,game_id:game.id}).eq('id',id);if(pe)throw pe;
+  const round=state.rounds.find(r=>r.id===pairing.round_id);
+  const other=state.pairings.filter(p=>p.round_id===pairing.round_id&&p.id!==id);
+  if(other.every(p=>p.result!==null||p.is_bye)){await db.from('rounds').update({status:'finished'}).eq('id',round.id);}
+  toast('Resultado salvo; Elo e classificação atualizados.');
+ });
+}
+db.auth.onAuthStateChange(async(_event,session)=>{currentUser=session?.user||null;await refreshProfile();try{await loadData();}catch(e){toast('Falha ao carregar dados: '+e.message);}});
+(async()=>{try{await refreshProfile();await loadData();}catch(e){toast('Falha de conexão: '+e.message);}})();
 </script>
 </body></html>
