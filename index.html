@@ -22,6 +22,7 @@ table{width:100%;border-collapse:collapse;text-align:left}th{font-size:11px;colo
 <div class="shell">
 <header class="top"><div class="brand"><div class="logo">♞</div><div><div class="eyebrow">CEC Diocesano Janaúba</div><h1>Clube de Xadrez</h1><p>Estratégia, aprendizado e comunidade.</p></div></div><div class="status">♟ Sistema do clube · versão inicial</div></header>
 <section class="panel" id="authPanel" style="margin-bottom:18px"><div class="panelhead"><div><h3>Acesso da equipe</h3><p class="sub" id="authStatus">Entre com sua conta para administrar jogadores e torneios. O ranking é público.</p></div><span class="pill" id="roleLabel">Visitante</span></div><form id="authForm" class="form"><div class="form row"><label>Nome (somente no cadastro)<input id="authName" placeholder="Seu nome"></label><label>E-mail<input id="authEmail" type="email" autocomplete="username" required placeholder="seu@email.com"></label><label>Senha<input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="Mínimo de 8 caracteres"></label></div><div class="row"><button type="submit" id="loginButton">Entrar</button><button type="button" class="secondary" id="signupButton">Criar conta</button><button type="button" class="secondary" id="logoutButton" style="display:none">Sair</button></div></form><p class="sub" id="authHelp">A primeira conta será criada como visitante. Depois, o administrador principal será autorizado com uma configuração segura no banco.</p></section>
+<section class="panel admin-only admin-admin" id="accessPanel" hidden style="margin-bottom:18px"><div class="panelhead"><div><h3>Gerenciar acessos</h3><p class="sub">Promova visitantes a monitores ou administradores e altere permissões existentes.</p></div><button type="button" class="secondary" onclick="loadUserProfiles()">Atualizar lista</button></div><p class="sub">Por segurança, você não pode alterar seu próprio nível de acesso. Identifique as contas pelo nome e pelo trecho do ID.</p><div id="userAccessList"><div class="empty">Carregando contas...</div></div></section>
 <section class="hero"><div class="welcome"><div class="eyebrow">Bem-vindo ao clube</div><h2>Cada partida é uma nova oportunidade.</h2><p>Acompanhe os jogadores, registre partidas e veja o ranking geral evoluir a cada resultado.</p><button onclick="showTab('ranking')">Ver ranking <span aria-hidden="true">→</span></button></div><div class="stats"><div class="stat"><small>Jogadores cadastrados</small><strong id="statPlayers">0</strong><span>♟ Comunidade</span></div><div class="stat"><small>Partidas registradas</small><strong id="statGames">0</strong><span>♜ Histórico</span></div><div class="stat"><small>Torneios criados</small><strong id="statTournaments">0</strong><span>♛ Competições</span></div><div class="stat"><small>Maior rating</small><strong id="statTop">—</strong><span>♔ Líder atual</span></div></div></section>
 <nav class="tabs"><button class="tab active" data-tab="ranking" onclick="showTab('ranking')">🏆 Ranking geral</button><button class="tab" data-tab="players" onclick="showTab('players')">♟ Jogadores</button><button class="tab" data-tab="games" onclick="showTab('games')">♜ Partidas</button><button class="tab" data-tab="tournaments" onclick="showTab('tournaments')">♛ Torneios</button></nav>
 <section id="ranking" class="section active"><div class="grid"><div class="panel"><div class="panelhead"><div><h3>Ranking geral</h3><p class="sub">Classificação ordenada pelo rating Elo.</p></div><span class="pill">ELO · K=32</span></div><div id="rankingTable"></div></div><div class="panel admin-only" hidden><h3>Registrar resultado</h3><p class="sub">O rating dos dois jogadores será atualizado automaticamente.</p><form id="gameForm" class="form"><label>Jogador 1<select id="gameP1" required></select></label><label>Jogador 2<select id="gameP2" required></select></label><label>Resultado<select id="gameResult"><option value="1">Jogador 1 venceu</option><option value="0.5">Empate</option><option value="0">Jogador 2 venceu</option></select></label><label>Torneio (opcional)<select id="gameTournament"><option value="">Partida avulsa</option></select></label><button type="submit">Registrar partida</button></form><div class="notice">O cálculo utiliza a fórmula Elo padrão, com fator K = 32 e rating inicial de 1000 pontos.</div></div></div></section>
@@ -40,6 +41,8 @@ let state={players:[],games:[],tournaments:[],tournamentPlayers:[],rounds:[],pai
 let currentUser=null, currentProfile=null, loading=false;
 const $=id=>document.getElementById(id);
 const isStaff=()=>!!currentProfile&&['admin','monitor'].includes(currentProfile.role);
+const isAdmin=()=>!!currentProfile&&currentProfile.role==='admin';
+let userProfiles=[];
 function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function toast(msg){const el=$('toast');el.textContent=msg;el.style.display='block';clearTimeout(window.toastTimer);window.toastTimer=setTimeout(()=>el.style.display='none',3000)}
 function showTab(id){document.querySelectorAll('.section').forEach(x=>x.classList.toggle('active',x.id===id));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===id));}
@@ -68,6 +71,7 @@ async function refreshProfile(){
     if(!error)currentProfile=data;
   }
   renderAuth();
+  if(isAdmin())await loadUserProfiles();else{userProfiles=[];$('userAccessList').innerHTML='<div class="empty">Apenas administradores podem gerenciar acessos.</div>';}
 }
 function renderAuth(){
   $('authStatus').textContent=currentUser?(currentProfile?(currentProfile.full_name||currentUser.email)+' · Acesso autenticado':'Conta autenticada; perfil ainda não carregado'):'Entre com sua conta para administrar jogadores e torneios. O ranking é público.';
@@ -79,6 +83,39 @@ function renderAuth(){
   $('logoutButton').style.display=currentUser?'inline-block':'none';
   $('authHelp').textContent=currentUser?(isStaff()?'Você tem permissão para gerenciar o clube.':'Sua conta ainda é somente de consulta. Um administrador precisa autorizar seu acesso de monitor ou administrador.'):'Crie sua conta. O primeiro administrador será ativado por uma etapa protegida no banco de dados.';
   document.querySelectorAll('.admin-only').forEach(el=>el.hidden=!isStaff());
+  document.querySelectorAll('.admin-admin').forEach(el=>el.hidden=!isAdmin());
+}
+async function loadUserProfiles(){
+  if(!isAdmin())return;
+  $('userAccessList').innerHTML='<div class="empty">Carregando contas...</div>';
+  const {data,error}=await db.from('profiles').select('id,full_name,role,created_at').order('created_at',{ascending:true});
+  if(error){$('userAccessList').innerHTML='<div class="empty">Não foi possível carregar as contas: '+esc(error.message)+'</div>';return;}
+  userProfiles=data||[];
+  $('userAccessList').innerHTML=userProfiles.length?'<div class="list">'+userProfiles.map(p=>{
+    const own=p.id===currentUser?.id;
+    const name=p.full_name||'Conta sem nome';
+    const date=p.created_at?new Date(p.created_at).toLocaleDateString('pt-BR'):'Data indisponível';
+    const roleName={admin:'Administrador',monitor:'Monitor',viewer:'Visitante'}[p.role]||p.role;
+    return '<div class="item"><div style="min-width:0"><strong>'+esc(name)+'</strong><small>'+esc(roleName)+' · Cadastro: '+esc(date)+'<br>ID: '+esc(p.id.slice(0,8))+'…'+(own?' · Sua conta':'')+'</small></div>'+(own?'<span class="pill">Conta atual</span>':'<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><select id="role-'+esc(p.id)+'" aria-label="Permissão de '+esc(name)+'" style="background:#121212;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:8px"><option value="viewer" '+(p.role==='viewer'?'selected':'')+'>Visitante</option><option value="monitor" '+(p.role==='monitor'?'selected':'')+'>Monitor</option><option value="admin" '+(p.role==='admin'?'selected':'')+'>Administrador</option></select><button type="button" class="secondary" onclick="saveUserRole(\''+esc(p.id)+'\')">Salvar</button></div>')+'</div>';
+  }).join('')+'</div>':'<div class="empty">Nenhuma conta cadastrada ainda.</div>';
+}
+async function saveUserRole(id){
+  if(!isAdmin()){toast('Somente administradores podem alterar acessos.');return;}
+  if(id===currentUser?.id){toast('Por segurança, não é possível alterar seu próprio acesso.');return;}
+  const control=$('role-'+id),role=control?.value;
+  if(!['admin','monitor','viewer'].includes(role)){toast('Permissão inválida.');return;}
+  const target=userProfiles.find(p=>p.id===id);
+  if(!target){toast('Conta não encontrada. Atualize a lista.');return;}
+  if(target.role==='admin'&&role!=='admin'){
+    const {data,error}=await db.from('profiles').select('id').eq('role','admin');
+    if(error){toast('Não foi possível verificar os administradores: '+error.message);return;}
+    if((data||[]).length<=1){toast('O clube precisa manter pelo menos um administrador.');return;}
+  }
+  const {data,error}=await db.from('profiles').update({role}).eq('id',id).select('id,role').maybeSingle();
+  if(error){toast('Não foi possível alterar o acesso: '+error.message);return;}
+  if(!data){toast('Nenhuma conta foi alterada. Verifique suas permissões.');return;}
+  toast('Permissão atualizada com sucesso.');
+  await loadUserProfiles();
 }
 async function signIn(mode){
   const email=$('authEmail').value.trim(),password=$('authPassword').value;
