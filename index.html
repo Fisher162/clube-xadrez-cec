@@ -45,6 +45,10 @@ table{width:100%;border-collapse:collapse;text-align:left}th{font-size:11px;colo
 header.top{display:flex;align-items:center;gap:10px}
 header.top #themeToggle{margin-left:auto}
 #authPanel[hidden]{display:none!important}
+
+/* Theme control stays in the header, never fixed over the page. */
+header.top #themeToggle{position:static!important;top:auto!important;right:auto!important;bottom:auto!important;left:auto!important;z-index:auto!important;margin-left:auto!important;display:inline-flex!important;flex:0 0 auto;align-items:center;justify-content:center;padding:10px 14px!important;min-height:40px;border-radius:10px;background:#f28c28!important;color:#171717!important;border:1px solid #171717!important;box-shadow:none!important;font-weight:800!important;font-size:14px!important}
+@media(max-width:600px){header.top #themeToggle{position:static!important;margin-left:auto!important}}
 </style>
 </head>
 <body>
@@ -141,7 +145,9 @@ let state={players:[],games:[],tournaments:[],tournamentPlayers:[],rounds:[],pai
 let currentUser=null, currentProfile=null, loading=false;
 const $=id=>document.getElementById(id);
 function applyTheme(theme){const chosen=theme==='light'?'light':'dark';document.documentElement.dataset.theme=chosen;const light=chosen==='light';const icon=$('themeIcon'),label=$('themeLabel');if(icon)icon.textContent=light?'🌙':'☀️';if(label)label.textContent=light?'Modo escuro':'Modo claro';const meta=document.querySelector('meta[name="theme-color"]');if(meta)meta.content=light?'#f3f4f6':'#f28c28';}
-function toggleTeamAccess(){const panel=document.getElementById('authPanel'),button=document.getElementById('teamAccessToggle');if(!panel||!button)return;panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden){panel.scrollIntoView({behavior:'smooth',block:'nearest'});const email=document.getElementById('authEmail');if(email&&!currentUser)email.focus();}}\nfunction toggleTheme(){const next=document.documentElement.dataset.theme==='light'?'dark':'light';applyTheme(next);try{localStorage.setItem('cec-chess-theme',next)}catch(e){}}
+function toggleTeamAccess(){const panel=document.getElementById('authPanel'),button=document.getElementById('teamAccessToggle');if(!panel||!button)return;panel.hidden=!panel.hidden;button.setAttribute('aria-expanded',String(!panel.hidden));if(!panel.hidden){panel.scrollIntoView({behavior:'smooth',block:'nearest'});const email=document.getElementById('authEmail');if(email&&!currentUser)email.focus();}}
+function toggleTheme(){const next=document.documentElement.dataset.theme==='light'?'dark':'light';applyTheme(next);try{localStorage.setItem('cec-chess-theme',next)}catch(e){}}
+const themeButton=$('themeToggle');if(themeButton){themeButton.removeAttribute('onclick');themeButton.addEventListener('click',toggleTheme);}
 (function initTheme(){let saved='dark';try{saved=localStorage.getItem('cec-chess-theme')||'dark'}catch(e){}applyTheme(saved)})();
 const isStaff=()=>!!currentProfile&&['admin','monitor'].includes(currentProfile.role);
 const isAdmin=()=>!!currentProfile&&currentProfile.role==='admin';
