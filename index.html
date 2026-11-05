@@ -56,7 +56,75 @@ table{width:100%;border-collapse:collapse;text-align:left}th{font-size:11px;colo
 <div class="panel" style="margin-top:18px"><h3>Relatórios do clube</h3><p class="sub">Exporte dados para planilhas ou imprima um resumo.</p><div class="action-row"><button type="button" onclick="exportClubReport()">⬇ Exportar CSV</button><button type="button" class="secondary" onclick="window.print()">Imprimir</button></div></div></section>
 <div class="profile-modal" id="profileModal" onclick="if(event.target===this)closePlayerProfile()"><div class="profile-card"><div style="display:flex;justify-content:space-between;gap:10px"><div><div class="eyebrow">Perfil do jogador</div><h2 id="profileName"></h2><p class="sub" id="profileMeta"></p></div><button type="button" class="secondary" onclick="closePlayerProfile()">Fechar ✕</button></div><div class="profile-stats" id="profileStats"></div><h3>Conquistas</h3><div id="profileAchievements"></div><h3>Últimas partidas</h3><div id="profileGames"></div></div></div>
 <div class="notice" id="systemNotice">Os dados do clube são armazenados no banco online. O ranking pode ser consultado publicamente; cadastros, resultados e organização dos torneios exigem acesso autorizado.</div>
-<footer class="footer">Clube de Xadrez do CEC Diocesano Janaúba · Feito para aprender, competir e evoluir.</footer>
+
+<style>
+.feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:18px}
+#attendanceSection,#evolutionSection,#challengeSection{margin-top:18px}
+#attendanceRows{display:grid;gap:8px}.attendance-row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:10px;background:#141414;border:1px solid var(--line);border-radius:10px}
+.attendance-row select{background:#121212;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px}
+#evolutionSvg{width:100%;height:210px;overflow:visible}.kiosk-mode .top,.kiosk-mode #authPanel,.kiosk-mode #accessPanel,.kiosk-mode .tabs,.kiosk-mode .footer,.kiosk-mode #systemNotice,.kiosk-mode #themeToggle{display:none!important}.kiosk-mode .shell{max-width:1500px;padding-top:20px}.kiosk-mode .hero{grid-template-columns:1fr 1fr}.kiosk-mode .welcome h2{font-size:clamp(34px,5vw,64px)}
+@media(max-width:700px){.feature-grid{grid-template-columns:1fr}}
+</style>
+<div class="feature-grid" id="cecExtraFeatures">
+ <section class="panel" id="challengeSection"><div class="eyebrow">Desafio diário</div><h3 id="dailyTitle">Desafio do dia</h3><p class="sub" id="dailyText"></p><div id="dailyHint" class="notice"></div><button type="button" class="secondary" id="newDailyChallenge" style="margin-top:12px">Ver outro desafio</button></section>
+ <section class="panel"><div class="eyebrow">Modo apresentação</div><h3>Modo telão</h3><p class="sub">Amplia o ranking e oculta controles administrativos para projetar em sala.</p><button type="button" id="kioskToggle">Ativar modo telão</button></section>
+</div>
+<section class="panel" id="evolutionSection"><div class="panelhead"><div><h3>📈 Evolução do rating</h3><p class="sub">Selecione um jogador para acompanhar a trajetória Elo nas partidas registradas.</p></div></div><select id="evolutionPlayer" style="width:100%;max-width:420px;background:#121212;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:10px"></select><div id="evolutionChart" style="margin-top:12px"><div class="empty">Selecione um jogador.</div></div></section>
+<section class="panel" id="attendanceSection"><div class="panelhead"><div><h3>📅 Frequência dos alunos</h3><p class="sub">Registre presença, ausência ou falta justificada. Visível apenas à equipe autorizada.</p></div></div><div class="action-row admin-only" id="attendanceControls" hidden><label>Data <input id="attendanceDate" type="date" style="background:#121212;color:var(--text);border:1px solid var(--line);padding:9px;border-radius:8px"></label><button type="button" id="saveAttendance">Salvar frequência</button></div><div id="attendanceRows"><div class="empty">Entre como monitor ou administrador para acessar a frequência.</div></div></section>
+<script>
+(function(){
+ const $x=id=>document.getElementById(id);
+ const challenges=[
+  ['Mate em um lance','Encontre uma posição em que a dama branca captura a peça indefesa e dá xeque-mate.','Dica: procure primeiro as casas próximas ao rei adversário.'],
+  ['Garfo de cavalo','Imagine um cavalo branco em d5 atacando simultaneamente rei em f6 e torre em e7. Qual peça deve ser salva?','Dica: o rei está em xeque; a ameaça dupla é a ideia central.'],
+  ['Princípio da abertura','No início da partida, cite duas prioridades antes de iniciar um ataque.','Dica: desenvolvimento das peças e segurança do rei.'],
+  ['Final de peões','Seu rei está ativo e tem um peão passado. O que deve acompanhar o avanço do peão?','Dica: aproxime o rei para apoiar a promoção.'],
+  ['Tática: peça pendurada','Antes de cada lance, qual verificação simples evita deixar uma peça sem defesa?','Dica: observe ameaças do adversário e peças atacadas.'],
+  ['Roque','Quais são duas condições importantes para realizar o roque?','Dica: o rei não pode estar em xeque nem atravessar casa atacada.'],
+  ['Xeque descoberto','Como funciona um xeque descoberto?','Dica: uma peça sai da linha de ataque de outra peça.']
+ ];
+ let challengeIndex=(Math.floor(Date.now()/86400000))%challenges.length;
+ function showChallenge(){const q=challenges[challengeIndex];$x('dailyTitle').textContent='Desafio '+(challengeIndex+1);$x('dailyText').textContent=q[0]+': '+q[1];$x('dailyHint').textContent=q[2];}
+ showChallenge();$x('newDailyChallenge').addEventListener('click',()=>{challengeIndex=(challengeIndex+1)%challenges.length;showChallenge();});
+ $x('kioskToggle').addEventListener('click',()=>{document.body.classList.toggle('kiosk-mode');$x('kioskToggle').textContent=document.body.classList.contains('kiosk-mode')?'Sair do modo telão':'Ativar modo telão';});
+ function drawEvolution(){
+  const id=$x('evolutionPlayer').value;const p=state.players.find(x=>x.id===id);if(!p){$x('evolutionChart').innerHTML='<div class="empty">Selecione um jogador.</div>';return;}
+  const games=state.games.filter(g=>g.player1_id===id||g.player2_id===id).sort((a,b)=>new Date(a.played_at)-new Date(b.played_at));
+  const vals=[1000];games.forEach(g=>vals.push(Number(g.player1_id===id?g.player1_rating_after:g.player2_rating_after)||vals[vals.length-1]));
+  const min=Math.min(...vals)-20,max=Math.max(...vals)+20,range=Math.max(40,max-min);
+  const pts=vals.map((v,i)=>[24+i*(552/Math.max(1,vals.length-1)),178-((v-min)/range)*145]);
+  const poly=pts.map(p=>p.join(',')).join(' ');
+  $x('evolutionChart').innerHTML='<div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><strong>'+p.name+'</strong><span class="pill">'+p.rating+' Elo atual</span></div><svg id="evolutionSvg" viewBox="0 0 600 205" role="img" aria-label="Gráfico de evolução do rating"><line x1="24" y1="178" x2="576" y2="178" stroke="var(--line)"/><line x1="24" y1="30" x2="24" y2="178" stroke="var(--line)"/><polyline points="'+poly+'" fill="none" stroke="var(--gold)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>'+pts.map((pt,i)=>'<circle cx="'+pt[0]+'" cy="'+pt[1]+'" r="4" fill="var(--gold)"><title>Partida '+i+': '+vals[i]+' Elo</title></circle>').join('')+'<text x="28" y="18" fill="var(--muted)" font-size="12">'+max+' Elo</text><text x="28" y="198" fill="var(--muted)" font-size="12">'+min+' Elo</text></svg><p class="sub">'+games.length+' partidas no histórico · rating inicial considerado: 1000 Elo.</p>';
+ }
+ function fillPlayers(){const sel=$x('evolutionPlayer'),old=sel.value;sel.innerHTML='<option value="">Selecione um jogador</option>'+state.players.map(p=>'<option value="'+p.id+'">'+p.name.replace(/</g,'&lt;')+'</option>').join('');if(state.players.some(p=>p.id===old))sel.value=old;else if(state.players.length)sel.value=state.players[0].id;drawEvolution();}
+ $x('evolutionPlayer').addEventListener('change',drawEvolution);
+ async function loadAttendance(){
+  const rows=$x('attendanceRows');
+  if(!isStaff()){rows.innerHTML='<div class="empty">A frequência é restrita a monitores e administradores.</div>';return;}
+  $x('attendanceControls').hidden=false;
+  const date=$x('attendanceDate').value||new Date().toLocaleDateString('en-CA');
+  const {data,error}=await db.from('attendance').select('player_id,status').eq('attendance_date',date);
+  if(error){rows.innerHTML='<div class="empty">Não foi possível carregar a frequência: '+error.message+'</div>';return;}
+  const existing=new Map((data||[]).map(a=>[a.player_id,a.status]));
+  rows.innerHTML='<div id="attendanceRowsInner">'+state.players.map(p=>'<div class="attendance-row"><strong>'+p.name.replace(/</g,'&lt;')+'</strong><select data-player="'+p.id+'"><option value="present" '+((existing.get(p.id)||'present')==='present'?'selected':'')+'>Presente</option><option value="absent" '+(existing.get(p.id)==='absent'?'selected':'')+'>Ausente</option><option value="justified" '+(existing.get(p.id)==='justified'?'selected':'')+'>Justificada</option></select></div>').join('')+'</div>';
+ }
+ $x('attendanceDate').value=new Date().toLocaleDateString('en-CA');
+ $x('attendanceDate').addEventListener('change',loadAttendance);
+ $x('saveAttendance').addEventListener('click',async()=>{
+  if(!isStaff())return;
+  const date=$x('attendanceDate').value;
+  const rows=[...document.querySelectorAll('#attendanceRows select[data-player]')].map(s=>({player_id:s.dataset.player,attendance_date:date,status:s.value,recorded_by:currentUser?.id||null}));
+  if(!rows.length)return;
+  const {error}=await db.from('attendance').upsert(rows,{onConflict:'player_id,attendance_date'});
+  if(error){toast('Erro ao salvar frequência: '+error.message);return;}
+  toast('Frequência salva com sucesso.');
+ });
+ const originalRender=window.render;
+ window.render=function(){originalRender();fillPlayers();loadAttendance();};
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{fillPlayers();loadAttendance();});else{fillPlayers();loadAttendance();}
+})();
+</script>
+\n<footer class="footer">Clube de Xadrez do CEC Diocesano Janaúba · Feito para aprender, competir e evoluir.</footer>
 </div><div class="toast" id="toast"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
