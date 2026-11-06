@@ -129,18 +129,32 @@ header.top #themeToggle{position:static!important;top:auto!important;right:auto!
 (function(){
  const $x=id=>document.getElementById(id);
  const challenges=[
-  ['Mate em um lance','Encontre uma posição em que a dama branca captura a peça indefesa e dá xeque-mate.','Dica: procure primeiro as casas próximas ao rei adversário.'],
-  ['Garfo de cavalo','Imagine um cavalo branco em d5 atacando simultaneamente rei em f6 e torre em e7. Qual peça deve ser salva?','Dica: o rei está em xeque; a ameaça dupla é a ideia central.'],
-  ['Princípio da abertura','No início da partida, cite duas prioridades antes de iniciar um ataque.','Dica: desenvolvimento das peças e segurança do rei.'],
-  ['Final de peões','Seu rei está ativo e tem um peão passado. O que deve acompanhar o avanço do peão?','Dica: aproxime o rei para apoiar a promoção.'],
-  ['Tática: peça pendurada','Antes de cada lance, qual verificação simples evita deixar uma peça sem defesa?','Dica: observe ameaças do adversário e peças atacadas.'],
-  ['Roque','Quais são duas condições importantes para realizar o roque?','Dica: o rei não pode estar em xeque nem atravessar casa atacada.'],
-  ['Xeque descoberto','Como funciona um xeque descoberto?','Dica: uma peça sai da linha de ataque de outra peça.']
+  ['Mate em um lance','As brancas jogam. A dama está em g6 e o rei preto em h8. Encontre o lance de mate.','Dica: procure um xeque protegido pelo rei branco em f6.'],
+  ['Garfo de cavalo','As brancas jogam. O cavalo em d5 ataca o rei preto em f6 e a torre preta em e7. Que tática está acontecendo?','Dica: o cavalo ataca duas peças ao mesmo tempo; o rei precisa responder ao xeque.'],
+  ['Princípio da abertura','Observe a posição inicial. Quais duas prioridades ajudam a preparar uma boa abertura?','Dica: desenvolva cavalos e bispos e prepare a segurança do rei.'],
+  ['Final de peões','As brancas têm um peão passado em e4 e o rei em d4; o rei preto está em e6. Como o rei branco pode ajudar o peão?','Dica: o rei branco já está ao lado do peão e pode escoltá-lo em direção à promoção.'],
+  ['Tática: peça pendurada','A torre branca em a1 está na mesma coluna que o bispo preto em a8, sem peças entre eles. Qual peça está atacada?','Dica: observe a coluna a, de baixo para cima.'],
+  ['Roque','Na posição mostrada, o rei branco está em e1 e a torre em h1. O caminho entre eles está livre. Cite condições necessárias para o roque.','Dica: o rei não pode estar em xeque, passar por casa atacada ou terminar em casa atacada; rei e torre não podem ter se movido.'],
+  ['Xeque descoberto','O bispo branco em e2 está entre a torre branca em e1 e o rei preto em e8. Que tipo de lance do bispo pode revelar o ataque da torre?','Dica: mova o bispo para fora da coluna e, liberando a linha da torre.']
  ];
+ const positionMaps=[
+  {'f6':'♔','g6':'♕','h8':'♚'},
+  {'d5':'♘','f6':'♚','e7':'♜','a1':'♔'},
+  {'a8':'♜','b8':'♞','c8':'♝','d8':'♛','e8':'♚','f8':'♝','g8':'♞','h8':'♜','a7':'♟','b7':'♟','c7':'♟','d7':'♟','e7':'♟','f7':'♟','g7':'♟','h7':'♟','a2':'♙','b2':'♙','c2':'♙','d2':'♙','e2':'♙','f2':'♙','g2':'♙','h2':'♙','a1':'♖','b1':'♘','c1':'♗','d1':'♕','e1':'♔','f1':'♗','g1':'♘','h1':'♖'},
+  {'d4':'♔','e4':'♙','e6':'♚'},
+  {'a1':'♖','a8':'♝','h8':'♚','h1':'♔'},
+  {'e1':'♔','h1':'♖','e8':'♚'},
+  {'e1':'♖','e2':'♗','e8':'♚','a1':'♔'}
+ ];
+ const initialBoard=Array(64).fill('');
+ function boardForChallenge(index){
+  const map=positionMaps[index]||positionMaps[2],next=Array(64).fill('');
+  Object.entries(map).forEach(([sq,piece])=>{const file=sq.charCodeAt(0)-97,rank=Number(sq[1]);next[(8-rank)*8+file]=piece;});
+  return next;
+ }
  let challengeIndex=(Math.floor(Date.now()/86400000))%challenges.length;
- function showChallenge(){const q=challenges[challengeIndex];$x('dailyTitle').textContent='Desafio '+(challengeIndex+1);$x('dailyText').textContent=q[0]+': '+q[1];$x('dailyHint').textContent=q[2];}
- const initialBoard=['♜','♞','♝','♛','♚','♝','♞','♜','♟','♟','♟','♟','♟','♟','♟','♟','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','♙','♙','♙','♙','♙','♙','♙','♙','♖','♘','♗','♕','♔','♗','♘','♖'];
- let board=initialBoard.slice(),selectedSquare=-1;
+ function showChallenge(){const q=challenges[challengeIndex];$x('dailyTitle').textContent='Desafio '+(challengeIndex+1);$x('dailyText').textContent=q[0]+': '+q[1];$x('dailyHint').textContent=q[2];board=boardForChallenge(challengeIndex);selectedSquare=-1;$x('boardMessage').textContent='Posição correspondente ao desafio. Selecione uma peça para experimentar.';renderDailyBoard();}
+ let board=boardForChallenge(challengeIndex),selectedSquare=-1;
  const whitePieces=new Set(['♙','♖','♘','♗','♕','♔']);
  const isWhitePiece=piece=>whitePieces.has(piece);
  function renderDailyBoard(){
@@ -167,7 +181,7 @@ header.top #themeToggle{position:static!important;top:auto!important;right:auto!
   board[index]=board[selectedSquare];board[selectedSquare]='';selectedSquare=-1;
   $x('boardMessage').textContent='Peça movida. Você pode continuar analisando a posição.';renderDailyBoard();
  });
- $x('resetDailyBoard').addEventListener('click',()=>{board=initialBoard.slice();selectedSquare=-1;$x('boardMessage').textContent='Posição inicial restaurada.';renderDailyBoard();});
+ $x('resetDailyBoard').addEventListener('click',()=>{board=boardForChallenge(challengeIndex);selectedSquare=-1;$x('boardMessage').textContent='Posição original deste desafio restaurada.';renderDailyBoard();});
  renderDailyBoard();
  showChallenge();$x('newDailyChallenge').addEventListener('click',()=>{challengeIndex=(challengeIndex+1)%challenges.length;showChallenge();});
 
