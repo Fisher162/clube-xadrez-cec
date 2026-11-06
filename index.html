@@ -35,14 +35,14 @@ table{width:100%;border-collapse:collapse;text-align:left}th{font-size:11px;colo
 :root[data-theme="light"] .click-name{color:var(--text)}
 :root[data-theme="light"] .toast{color:#171717}
 #themeToggle{white-space:nowrap;display:inline-flex;align-items:center;gap:7px}
-@media(max-width:600px){.top{flex-wrap:wrap}.top-actions{width:100%;display:flex;justify-content:flex-end}}
+@media(max-width:600px){.top{flex-wrap:wrap}.top-actions{width:100%;display:flex;justify-content:flex-end;margin-left:0}}
 
 
 #themeToggle{position:static!important;display:inline-flex!important;align-items:center;justify-content:center;gap:7px;padding:10px 14px!important;min-height:40px;border-radius:10px;background:#f28c28!important;color:#171717!important;border:1px solid #171717!important;box-shadow:none!important;font-weight:800!important;font-size:14px!important;opacity:1!important;visibility:visible!important}#themeToggle:hover{transform:translateY(1px)}
 
 .team-access-toggle{background:transparent!important;color:var(--muted)!important;border:1px solid var(--line)!important;border-radius:50%!important;width:38px;height:38px;padding:0!important;font-size:16px!important;opacity:.72;cursor:pointer}
 .team-access-toggle:hover{opacity:1;background:var(--surface)!important}
-header.top{display:flex;align-items:center;gap:10px}
+header.top{display:flex;align-items:center;gap:10px}.top-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;margin-left:auto;flex:0 0 auto}.team-access-toggle{width:auto!important;height:auto!important;min-height:40px;padding:10px 14px!important;border-radius:10px!important;background:#333!important;color:var(--text)!important;border:1px solid var(--line)!important;font-size:14px!important;font-weight:800!important;opacity:1!important;white-space:nowrap}
 header.top #themeToggle{margin-left:auto}
 #authPanel[hidden]{display:none!important}
 
@@ -94,7 +94,7 @@ header.top #themeToggle{position:static!important;top:auto!important;right:auto!
 </head>
 <body>
 <div class="shell">
-<header class="top"><div class="brand"><div class="logo"><img src="assets/cavalo-cec.svg" alt="Símbolo do cavalo do Clube de Xadrez CEC"></div><div><div class="eyebrow">CEC Diocesano Janaúba</div><h1>Clube de Xadrez</h1><p>Estratégia, aprendizado e comunidade.</p></div></div><button type="button" id="teamAccessToggle" class="team-access-toggle"  aria-controls="authPanel" aria-expanded="false" title="Acesso da equipe">🔒</button><button type="button" id="themeToggle" aria-label="Alternar tema"><span id="themeIcon">☀️</span> <span id="themeLabel">Modo claro</span></button></header>
+<header class="top"><div class="brand"><div class="logo"><img src="assets/cavalo-cec.svg" alt="Símbolo do cavalo do Clube de Xadrez CEC"></div><div><div class="eyebrow">CEC Diocesano Janaúba</div><h1>Clube de Xadrez</h1><p>Estratégia, aprendizado e comunidade.</p></div></div><div class="top-actions"><button type="button" id="teamAccessToggle" class="team-access-toggle" aria-controls="authPanel" aria-expanded="false" title="Entrar na área da equipe">Entrar</button><button type="button" id="themeToggle" aria-label="Alternar tema"><span id="themeIcon">☀️</span> <span id="themeLabel">Modo claro</span></button></div></header>
 <section class="panel" id="authPanel" hidden style="margin-bottom:18px"><div class="panelhead"><div><h3>Acesso da equipe</h3><p class="sub" id="authStatus">Entre com sua conta para administrar jogadores e torneios. O ranking é público.</p></div><span class="pill" id="roleLabel">Visitante</span></div><form id="authForm" class="form"><div class="form row"><label>Nome (somente no cadastro)<input id="authName" placeholder="Seu nome"></label><label>E-mail<input id="authEmail" type="email" autocomplete="username" required placeholder="seu@email.com"></label><label>Senha<input id="authPassword" type="password" autocomplete="current-password" minlength="8" required placeholder="Mínimo de 8 caracteres"></label></div><div class="row"><button type="submit" id="loginButton">Entrar</button><button type="button" class="secondary" id="signupButton">Criar conta</button><button type="button" class="secondary" id="logoutButton" style="display:none">Sair</button></div></form><p class="sub" id="authHelp">A primeira conta será criada como visitante. Depois, o administrador principal será autorizado com uma configuração segura no banco.</p></section>
 <section class="panel admin-only admin-admin" id="accessPanel" hidden style="margin-bottom:18px"><div class="panelhead"><div><h3>Gerenciar acessos</h3><p class="sub">Promova visitantes a monitores ou administradores e altere permissões existentes.</p></div><button type="button" class="secondary" onclick="loadUserProfiles()">Atualizar lista</button></div><p class="sub">Por segurança, você não pode alterar seu próprio nível de acesso. Identifique as contas pelo nome e pelo trecho do ID.</p><div id="userAccessList"><div class="empty">Carregando contas...</div></div></section>
 <section class="hero"><div class="welcome"><div class="eyebrow">Bem-vindo ao clube</div><h2>Cada partida é uma nova oportunidade.</h2><p>Acompanhe os jogadores, registre partidas e veja o ranking geral evoluir a cada resultado.</p><button onclick="showTab('ranking')">Ver ranking <span aria-hidden="true">→</span></button></div><div class="stats"><div class="stat"><small>Jogadores cadastrados</small><strong id="statPlayers">0</strong><span>♟ Comunidade</span></div><div class="stat"><small>Partidas registradas</small><strong id="statGames">0</strong><span>♜ Histórico</span></div><div class="stat"><small>Torneios criados</small><strong id="statTournaments">0</strong><span>♛ Competições</span></div><div class="stat"><small>Maior rating</small><strong id="statTop">—</strong><span>♔ Líder atual</span></div></div></section>
@@ -230,6 +230,7 @@ async function refreshProfile(){
   if(isAdmin())await loadUserProfiles();else{userProfiles=[];$('userAccessList').innerHTML='<div class="empty">Apenas administradores podem gerenciar acessos.</div>';}
 }
 function renderAuth(){
+  const accessToggle=$('teamAccessToggle');if(accessToggle){accessToggle.textContent=currentUser?'Minha conta':'Entrar';accessToggle.title=currentUser?'Abrir os dados da conta':'Entrar na área da equipe';}
   $('authStatus').textContent=currentUser?(currentProfile?(currentProfile.full_name||currentUser.email)+' · Acesso autenticado':'Conta autenticada; perfil ainda não carregado'):'Entre com sua conta para administrar jogadores e torneios. O ranking é público.';
   $('roleLabel').textContent=currentProfile?({admin:'Administrador',monitor:'Monitor',viewer:'Visitante'}[currentProfile.role]||'Conta'): 'Visitante';
   $('authName').style.display=currentUser?'none':'block';
