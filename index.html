@@ -218,8 +218,7 @@ header.top #themeToggle{position:static!important;top:auto!important;right:auto!
   if(error){toast('Erro ao salvar frequência: '+error.message);return;}
   toast('Frequência salva com sucesso.');
  });
- const originalRender=window.render;
- window.render=function(){originalRender();fillPlayers();loadAttendance();};
+ window.cecLoadAttendance=loadAttendance;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{fillPlayers();loadAttendance();});else{fillPlayers();loadAttendance();}
 })();
 </script>
@@ -266,6 +265,7 @@ async function loadData(){
   state.pairings=results[4].data||[];
   state.games=results[5].data||[];
   render();
+  if(window.cecLoadAttendance)await window.cecLoadAttendance();
 }
 async function refreshProfile(){
   currentUser=(await db.auth.getUser()).data.user||null;
