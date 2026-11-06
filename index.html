@@ -141,6 +141,8 @@ header.top #themeToggle{position:static!important;top:auto!important;right:auto!
  function showChallenge(){const q=challenges[challengeIndex];$x('dailyTitle').textContent='Desafio '+(challengeIndex+1);$x('dailyText').textContent=q[0]+': '+q[1];$x('dailyHint').textContent=q[2];}
  const initialBoard=['♜','♞','♝','♛','♚','♝','♞','♜','♟','♟','♟','♟','♟','♟','♟','♟','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','','♙','♙','♙','♙','♙','♙','♙','♙','♖','♘','♗','♕','♔','♗','♘','♖'];
  let board=initialBoard.slice(),selectedSquare=-1;
+ const whitePieces=new Set(['♙','♖','♘','♗','♕','♔']);
+ const isWhitePiece=piece=>whitePieces.has(piece);
  function renderDailyBoard(){
   const el=$x('dailyBoard');
   el.innerHTML=board.map((piece,index)=>{
@@ -159,7 +161,7 @@ header.top #themeToggle{position:static!important;top:auto!important;right:auto!
    if(!board[index]){$x('boardMessage').textContent='Escolha uma casa que tenha uma peça.';return;}
    selectedSquare=index;$x('boardMessage').textContent='Agora escolha a casa de destino.';renderDailyBoard();return;
   }
-  if(board[index]&&((board[index]===board[index].toUpperCase())===(board[selectedSquare]===board[selectedSquare].toUpperCase()))){
+  if(board[index]&&isWhitePiece(board[index])===isWhitePiece(board[selectedSquare])){
    selectedSquare=index;$x('boardMessage').textContent='Peça selecionada. Escolha o destino.';renderDailyBoard();return;
   }
   board[index]=board[selectedSquare];board[selectedSquare]='';selectedSquare=-1;
